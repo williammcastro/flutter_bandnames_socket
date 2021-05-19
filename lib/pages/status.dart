@@ -11,25 +11,24 @@ class StatusPage extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final socketService = Provider.of<SocketService>(context);
-      print('este es: $socketService.toString()');
+    //socketService.socket.emit('event','hola');
       return Scaffold(
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children:[
-            Text('Server Status'),
-            ElevatedButton(
-              onPressed: (){
-                print('boton conectar presionado');
-                var socket2 = new SocketService();
-                print('este es socket2: $socket2');
-              }, 
-              child: Text('Boton conectar')
-            )
-          ],
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children:<Widget>[
+              Text('Server Status : ${ socketService.serverStatus }')
+            ],
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.message),
+          onPressed: (){
+            //tarea
+            socketService.socket.emit('maletin','hola');
+
+          },
         ),
       );
-
-      
   }
 }

@@ -10,39 +10,45 @@ enum ServerStatus{
 class SocketService with ChangeNotifier {
 
   ServerStatus _serverStatus = ServerStatus.Connecting;
+  IO.Socket _socket;
+
+  ServerStatus get serverStatus => this._serverStatus;
+  IO.Socket get socket => this._socket;
 
  SocketService(){
   this._initConfig();
 }
 
 void _initConfig(){
-
-print('este es _serverStatus: $_serverStatus');
   
-  //Dart client1
-  IO.Socket socket = IO.io('http://192.168.1.145:3000/', <String, dynamic>{
+  //Dart client1 conexion de flutter al servidor node
+  this._socket = IO.io('http://192.168.1.145:3000/', <String, dynamic>{
     'transports' : ['websocket'],
     'autoConnect': true,
   });
 
-  // //Dart client2
-  // IO.Socket socket = IO.io('http://192.168.1.145:3000', 
-  // IO.OptionBuilder()
-  //     .setTransports(['websocket']) // for Flutter or Dart VM
-  //     .build());
-  // print('despues de IO:Socket...este es socket: $socket');
-
-  //Conexion1
-  socket.onConnect((_) {
+  
+  this._socket.onConnect((_) {
     print('app connected');
+    this._serverStatus = ServerStatus.Online;
+    notifyListeners();
   });
-  socket.onDisconnect((_) => print('app disconnected'));
+  this._socket.onDisconnect((_) {
+    print('app disconnected');
+    this._serverStatus = ServerStatus.Offline;
+    notifyListeners();
+  });
 
-  // // Conexion 2
-  // socket.on('connect', (_) {
-  //   print('connectada la vaina');
-  // });
-  // socket.on('disconnect', (_) => print('disconnect'));
+  //no esta bueno dejarlo hardcoded, se hace de otra manera:
+  // socket.on('morral', ( payload ) {
+  //   print('morral :');
+  //   print('nombre : '+ payload['nombre']);
+  //   print('mensaje : '+ payload['mensaje']);
+  //   print( payload.containsKey('mensaje2') ? payload['mensaje2'] : 'no hay msje');
+  //});
+  
+
+ 
 
 
 
