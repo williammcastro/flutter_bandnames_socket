@@ -25,7 +25,10 @@ class StatusPage extends StatelessWidget {
           child: Icon(Icons.message),
           onPressed: (){
             //tarea
-            socketService.socket.emit('maletin','hola');
+            //socketService.socket.emit('nuevo-mensaje', { //otra forma mas explicita
+            socketService.emit('nuevo-mensaje', {  //forma mas reducida
+              'nombre': 'William', 
+              'mensaje':'hola desde flutter'});
 
           },
         ),
