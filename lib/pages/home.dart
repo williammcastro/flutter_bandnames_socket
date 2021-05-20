@@ -23,6 +23,29 @@ class _HomePageState extends State<HomePage> {
     Band(id: '4', name: 'Bon Jovi', votes: 4 )
   ];
 
+  @override
+  void initState() { 
+
+    final socketService = Provider.of<SocketService>(context, listen: false );
+
+    socketService.socket.on('active-bands', ( payload ) { //escuchar lo q viene con active-bands
+      //listar las bandas en el view de las bandas toca mapearlo primero
+      this.bands = (payload as List)
+        .map( (band) => Band.fromMap(band) ) //esto crea un iterable pero no es necesariamente una lista
+        .toList();  //ahora si la convierto en una lista
+
+      setState(() {});
+
+    });
+    super.initState();
+  }
+
+@override
+  void dispose() {
+    final socketService = Provider.of<SocketService>(context, listen: false );
+    socketService.socket.off('active-bands');
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +80,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _bandTile(Band band) {
+
+    final socketService = Provider.of<SocketService>(context, listen: false);
+
+
     return Dismissible(
       key: Key(band.id),
       direction: DismissDirection.endToStart,
@@ -81,7 +108,8 @@ class _HomePageState extends State<HomePage> {
           title: Text(band.name),
           trailing: Text('${band.votes}', style: TextStyle(fontSize: 20),),
           onTap: () {
-            print(band.name);
+            socketService.emit('vote-band', {'id': band.id } );
+            print('acabe de votar por la banda :' + band.id);
           },
         ),
     );

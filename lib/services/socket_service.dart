@@ -42,19 +42,7 @@ void _initConfig(){
     notifyListeners();
   });
 
-  //no esta bueno dejarlo hardcoded, se hace de otra manera:
-  // socket.on('morral', ( payload ) {
-  //   print('morral :');
-  //   print('nombre : '+ payload['nombre']);
-  //   print('mensaje : '+ payload['mensaje']);
-  //   print( payload.containsKey('mensaje2') ? payload['mensaje2'] : 'no hay msje');
-  //});
-  
-
  
-
-
-
 }
 
 }
