@@ -23,7 +23,7 @@ class SocketService with ChangeNotifier {
 }
 
 void _initConfig(){
-  print('dentro del initConfig');
+  //print('dentro del initConfig');
   //Dart client1 conexion de flutter al servidor node
   this._socket = IO.io('http://192.168.1.145:3000/', <String, dynamic>{
     'transports' : ['websocket'],

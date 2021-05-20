@@ -180,12 +180,20 @@ class _HomePageState extends State<HomePage> {
 
 
   void addBandToList( name ){
-    print('este es name en adbantdolist : $name');
+
+
 
     if( name.length > 1){
-      this.bands.add(new Band(id: DateTime.now().toString(), name: name, votes: 3));
-      setState(() { });
-      print('presionado boton dentro del if de addBandToList');
+      print('este es name en addBandToList : $name');
+      
+      final socketService = Provider.of<SocketService>(context, listen: false);
+
+      socketService.emit('add-band', { 'name': name } );
+      print('acabe de votar por la banda :' + name );
+
+      // this.bands.add(new Band(id: DateTime.now().toString(), name: name, votes: 3));
+      //setState(() { });
+      // print('presionado boton dentro del if de addBandToList');
     }
 
     Navigator.pop(context);
