@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
+import 'package:pie_chart/pie_chart.dart';
 
 import 'package:band_names/models/band.dart';
 import 'package:band_names/services/socket_service.dart';
@@ -28,16 +29,21 @@ class _HomePageState extends State<HomePage> {
 
     final socketService = Provider.of<SocketService>(context, listen: false );
 
-    socketService.socket.on('active-bands', ( payload ) { //escuchar lo q viene con active-bands
-      //listar las bandas en el view de las bandas toca mapearlo primero
+    socketService.socket.on('active-bands', _handleActiveBands); //escuchar lo q viene con active-bands
+    //socketService.socket.on('active-bands', _handleActiveBands); //mas listeners y queda ordenado
+    //socketService.socket.on('active-bands', _handleActiveBands); //mas listeners y queda ordenado
+
+    super.initState();
+  }
+
+  _handleActiveBands(dynamic payload) {
+    //lo quite del initState(){} lineas 32- 35 para que quede mas facil de leer!!!
+     //listar las bandas en el view de las bandas toca mapearlo primero
       this.bands = (payload as List)
         .map( (band) => Band.fromMap(band) ) //esto crea un iterable pero no es necesariamente una lista
         .toList();  //ahora si la convierto en una lista
 
       setState(() {});
-
-    });
-    super.initState();
   }
 
 @override
@@ -67,10 +73,17 @@ class _HomePageState extends State<HomePage> {
           
         ],
       ),
-      body: ListView.builder(
-        itemCount: bands.length,
-        itemBuilder: (BuildContext context, int index) => _bandTile( bands[index] ) //opcional BuildContext y el int, ademas se convierte a arrow func
-       ),
+      body: Column(
+              children:<Widget>[
+                _showGraph(),
+                Expanded(
+                  child: ListView.builder(
+                  itemCount: bands.length,
+                  itemBuilder: (BuildContext context, int index) => _bandTile( bands[index] ) //opcional BuildContext y el int, ademas se convierte a arrow func
+                  ),
+                ),
+              ]
+      ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         elevation: 1,
@@ -87,10 +100,13 @@ class _HomePageState extends State<HomePage> {
     return Dismissible(
       key: Key(band.id),
       direction: DismissDirection.endToStart,
-      onDismissed: (DismissDirection direction){
-        print('esta es direction para borrar: $direction');
-        print('este es el id para borrar: ${band.id}');
+      onDismissed: (DismissDirection direction){//Se puede reemplasar "DismissDirection direction" por "_"
+        print('esta es direction para borrar: $direction');//puedo saber la dir del dismiss
+        print('este es el id para borrar: ${band.id}');//este es el id de band
+
         // llamar el borrado en el server
+        socketService.emit('delete-band', {'id': band.id } );
+        print('acabe de borrar la banda :' + band.id);
       },
       background: Container (
         padding: EdgeInsets.only( right: 10.0  ),
@@ -171,21 +187,14 @@ class _HomePageState extends State<HomePage> {
         }
       );
     }
-    
-
-
-    }
-
-
+  }
 
 
   void addBandToList( name ){
 
-
-
     if( name.length > 1){
       print('este es name en addBandToList : $name');
-      
+
       final socketService = Provider.of<SocketService>(context, listen: false);
 
       socketService.emit('add-band', { 'name': name } );
@@ -197,5 +206,26 @@ class _HomePageState extends State<HomePage> {
     }
 
     Navigator.pop(context);
+  }
+
+  //Mostrar la grafica:
+  _showGraph(){
+    
+    Map<String, double> dataMap = new Map();
+    bands.forEach((band) {
+      dataMap.putIfAbsent(band.name, () => band.votes.toDouble());
+     });
+  
+
+  return Container(
+    padding: EdgeInsets.only(left: 10.0),
+    width: double.infinity,
+    height: 200,
+    child: PieChart(
+      dataMap: dataMap,
+      chartType: ChartType.ring,
+    )
+  );
+
   }
 }
